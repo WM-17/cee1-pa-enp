@@ -1,0 +1,6 @@
+{
+  "name": "OBJECTIF CEE1 — Entraînement QCM Révision",
+  "description": "Application d'entraînement intensif aux QCM de l'épreuve finale CEE1 pour la Police Nationale : 465 questions (dont 200 Vrai/Faux issus des annales & fichiers de police SIV, FPR, TAJ, FOVES), 7 modules, carnet d'erreurs, mode examen blanc et système de galons.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
