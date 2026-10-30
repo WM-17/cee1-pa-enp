@@ -12,6 +12,9 @@ import {
   Shuffle,
   Shield,
   BookOpen,
+  Flame,
+  Skull,
+  Share2,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -26,8 +29,10 @@ interface DashboardViewProps {
   onStartModule: (moduleId: string, filter?: 'all' | 'unmastered') => void;
   onStartErrors: () => void;
   onStartBookmarks: () => void;
+  onStartSuddenDeath: () => void;
   onNavigateLexicon: () => void;
   onOpenRankModal: () => void;
+  onOpenShareChallenge?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -37,8 +42,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onStartModule,
   onStartErrors,
   onStartBookmarks,
+  onStartSuddenDeath,
   onNavigateLexicon,
   onOpenRankModal,
+  onOpenShareChallenge,
 }) => {
   const { totalQuestions, masteredCount, pct, currentRank } = masteryData;
   const errorCount = state.errorIds.length;
@@ -62,16 +69,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <GalonBadge type={currentRank.svgType} />
           </button>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <span className="text-[10px] uppercase tracking-wider text-blue-300 font-extrabold">
                 Progression globale CEE1
               </span>
-              <button
-                onClick={onOpenRankModal}
-                className="text-xs text-blue-400 hover:text-blue-300 font-bold underline cursor-pointer"
-              >
-                Grades & Galons
-              </button>
+              <div className="flex items-center gap-3">
+                {onOpenShareChallenge && (
+                  <button
+                    onClick={onOpenShareChallenge}
+                    className="text-xs text-amber-400 hover:text-amber-300 font-extrabold flex items-center gap-1 cursor-pointer bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20"
+                    title="Partager votre badge et défier un collègue"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>Défier ma promo</span>
+                  </button>
+                )}
+                <button
+                  onClick={onOpenRankModal}
+                  className="text-xs text-blue-400 hover:text-blue-300 font-bold underline cursor-pointer"
+                >
+                  Grades & Galons
+                </button>
+              </div>
             </div>
             <div className="text-base sm:text-lg font-black truncate mt-0.5 text-white">
               {currentRank.title}
@@ -148,25 +167,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </span>
         </button>
 
-        {/* Révision Rapide */}
+        {/* Mode Mort Subite (Sudden Death) */}
         <button
-          onClick={() => onStartModule('all', 'unmastered')}
-          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0B132B] hover:border-blue-500/50 active:scale-[0.99] border border-slate-200 dark:border-slate-800 text-left shadow-sm hover:shadow-md transition-all flex sm:flex-col items-center sm:items-start justify-between gap-3 cursor-pointer group"
+          onClick={onStartSuddenDeath}
+          className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-rose-950 to-red-950 hover:from-slate-800 hover:to-red-900 active:scale-[0.99] border-2 border-rose-500/70 text-left shadow-lg shadow-rose-950/40 transition-all flex sm:flex-col items-center sm:items-start justify-between gap-3 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center gap-3 sm:block">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center sm:mb-2.5 shrink-0 group-hover:scale-110 transition-transform">
-              <Zap className="w-5 h-5" />
+          {/* Subtle animated red glow */}
+          <div className="absolute -top-10 -right-10 w-28 h-28 bg-rose-500/20 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="flex items-center gap-3 sm:block relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-rose-600/30 text-rose-400 border border-rose-500/50 flex items-center justify-center sm:mb-2.5 shrink-0 group-hover:scale-110 transition-transform">
+              <Flame className="w-5 h-5 text-rose-400 animate-flame" />
             </div>
             <div>
-              <div className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
-                Révision Rapide
+              <div className="font-black text-sm sm:text-base text-white flex items-center gap-1.5">
+                <span>Mort Subite</span>
+                <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase bg-rose-600 text-white">
+                  Défi
+                </span>
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Questions non acquises
+              <div className="text-xs text-rose-200/80 font-medium">
+                1 seule faute = Éliminé
               </div>
             </div>
           </div>
-          <span className="text-xs text-blue-600 dark:text-blue-400 font-bold shrink-0">Lancer →</span>
+          <div className="flex items-center gap-1.5 relative z-10">
+            <span className="text-xs font-mono font-black text-amber-400 bg-black/50 px-2 py-0.5 rounded-lg border border-amber-500/30">
+              Record : {state.suddenDeathRecord?.bestStreak || 0}
+            </span>
+          </div>
         </button>
       </div>
 
@@ -176,7 +205,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-blue-500" />
             <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Programme Officiel par Matière (7 Modules)
+              Programme par Matière (7 Modules)
             </h2>
           </div>
           <button

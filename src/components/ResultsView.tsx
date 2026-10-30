@@ -1,7 +1,7 @@
 import React from 'react';
 import { QuizSession } from './QuizView';
 import { calculateScoreOn20, getScoreEvaluation } from '../utils/quizLogic';
-import { Award, RotateCcw, AlertTriangle, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
+import { Award, RotateCcw, AlertTriangle, ArrowLeft, CheckCircle2, XCircle, Share2 } from 'lucide-react';
 
 interface ResultsViewProps {
   quiz: QuizSession;
@@ -9,6 +9,7 @@ interface ResultsViewProps {
   onReturnDashboard: () => void;
   onStartErrors: () => void;
   onRestartQuiz: () => void;
+  onOpenShareChallenge?: (scoreOn20: number, mention: string) => void;
 }
 
 export const ResultsView: React.FC<ResultsViewProps> = ({
@@ -17,6 +18,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   onReturnDashboard,
   onStartErrors,
   onRestartQuiz,
+  onOpenShareChallenge,
 }) => {
   const { questions, answers, title } = quiz;
   let correctCount = 0;
@@ -53,6 +55,16 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
         {/* Boutons d'action rapides */}
         <div className="pt-2 flex flex-wrap justify-center gap-3">
+          {onOpenShareChallenge && (
+            <button
+              onClick={() => onOpenShareChallenge(scoreOn20, mention)}
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 active:scale-95 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-500/25 cursor-pointer transition-all"
+            >
+              <Share2 className="w-4 h-4 fill-slate-950" />
+              <span>Défier ma brigade (Partager ma note de {scoreOn20}/20)</span>
+            </button>
+          )}
+
           <button
             onClick={onReturnDashboard}
             className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-blue-600/30 cursor-pointer transition-all"

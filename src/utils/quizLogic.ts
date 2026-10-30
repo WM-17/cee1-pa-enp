@@ -7,6 +7,14 @@ export interface UserStats {
   lastChoice: number | null;
 }
 
+export interface SuddenDeathRecord {
+  bestStreak: number;
+  date: string;
+  fatalQuestionId?: number;
+  fatalQuestionText?: string;
+  fatalQuestionRef?: string;
+}
+
 export interface AppState {
   stats: Record<number, UserStats>;
   errorIds: number[];
@@ -18,6 +26,7 @@ export interface AppState {
     durationSec: number;
   }[];
   bookmarks: number[];
+  suddenDeathRecord?: SuddenDeathRecord;
 }
 
 export const INITIAL_STATE: AppState = {
@@ -25,6 +34,10 @@ export const INITIAL_STATE: AppState = {
   errorIds: [],
   examHistory: [],
   bookmarks: [],
+  suddenDeathRecord: {
+    bestStreak: 0,
+    date: '',
+  },
 };
 
 export function calculateMastery(
@@ -143,5 +156,6 @@ export function importBackupCode(codeStr: string): AppState {
     errorIds: Array.isArray(parsed.errorIds) ? parsed.errorIds : [],
     examHistory: Array.isArray(parsed.examHistory) ? parsed.examHistory : [],
     bookmarks: Array.isArray(parsed.bookmarks) ? parsed.bookmarks : [],
+    suddenDeathRecord: parsed.suddenDeathRecord || { bestStreak: 0, date: '' },
   };
 }

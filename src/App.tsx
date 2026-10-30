@@ -5,12 +5,15 @@ import {
   INITIAL_STATE,
   calculateMastery,
   shuffleQuestions,
+  SuddenDeathRecord,
 } from './utils/quizLogic';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
 import { QuizView, QuizSession } from './components/QuizView';
 import { ResultsView } from './components/ResultsView';
 import { LexiconView } from './components/LexiconView';
+import { SuddenDeathView } from './components/SuddenDeathView';
+import { ShareChallengeModal, ChallengeData } from './components/ShareChallengeModal';
 import { RankModal } from './components/RankModal';
 import { BackupModal } from './components/BackupModal';
 import { ToastContainer, ToastMessage } from './components/Toast';
@@ -71,6 +74,7 @@ export default function App() {
           errorIds: Array.isArray(parsed.errorIds) ? parsed.errorIds : [],
           examHistory: Array.isArray(parsed.examHistory) ? parsed.examHistory : [],
           bookmarks: Array.isArray(parsed.bookmarks) ? parsed.bookmarks : [],
+          suddenDeathRecord: parsed.suddenDeathRecord || { bestStreak: 0, date: '' },
         };
       }
     } catch {
@@ -89,12 +93,18 @@ export default function App() {
   }, [state]);
 
   // View state
-  const [view, setView] = useState<'dashboard' | 'quiz' | 'results' | 'lexicon'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'quiz' | 'results' | 'lexicon' | 'suddendeath'>('dashboard');
   const [quiz, setQuiz] = useState<QuizSession | null>(null);
 
   // Modals & toasts
   const [isRankModalOpen, setIsRankModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
+  const [challengeData, setChallengeData] = useState<ChallengeData>({
+    type: 'suddendeath',
+    scoreValue: 0,
+    subtitle: 'Prêt pour l\'épreuve CEE1',
+  });
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const showToast = useCallback((text: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
@@ -247,6 +257,56 @@ export default function App() {
     });
     setView('quiz');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleStartSuddenDeath = () => {
+    setView('suddendeath');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleRecordNewBest = (newRecord: SuddenDeathRecord) => {
+    setState((prev) => ({
+      ...prev,
+      suddenDeathRecord: newRecord,
+    }));
+    showToast(`🏆 NOUVEAU RECORD : ${newRecord.bestStreak} sans faute !`, 'success');
+  };
+
+  const handleOpenChallengeFromSuddenDeath = (streak: number) => {
+    setChallengeData({
+      type: 'suddendeath',
+      scoreValue: streak,
+      subtitle: `Record validé : ${streak} questions sans faute en Mort Subite !`,
+    });
+    setIsChallengeModalOpen(true);
+  };
+
+  const handleOpenChallengeFromResults = (scoreOn20: number, mention: string) => {
+    setChallengeData({
+      type: 'exam',
+      scoreValue: scoreOn20,
+      mention,
+      subtitle: `Note obtenue : ${scoreOn20}/20 (${mention}) à l'Examen Blanc CEE1 !`,
+    });
+    setIsChallengeModalOpen(true);
+  };
+
+  const handleOpenChallengeFromDashboard = () => {
+    const bestStreak = state.suddenDeathRecord?.bestStreak || 0;
+    if (bestStreak > 0) {
+      setChallengeData({
+        type: 'suddendeath',
+        scoreValue: bestStreak,
+        subtitle: `Meilleur record promo : ${bestStreak} d'affilée en Mort Subite !`,
+      });
+    } else {
+      setChallengeData({
+        type: 'general',
+        scoreValue: `${masteryData.pct}% (${masteryData.masteredCount}/${masteryData.totalQuestions})`,
+        subtitle: `Grade actuel : ${masteryData.currentRank.title} sur la préparation CEE1 !`,
+      });
+    }
+    setIsChallengeModalOpen(true);
   };
 
   // Interactions inside quiz
@@ -420,8 +480,21 @@ export default function App() {
             onStartModule={handleStartModule}
             onStartErrors={handleStartErrors}
             onStartBookmarks={handleStartBookmarks}
+            onStartSuddenDeath={handleStartSuddenDeath}
             onNavigateLexicon={() => setView('lexicon')}
             onOpenRankModal={() => setIsRankModalOpen(true)}
+            onOpenShareChallenge={handleOpenChallengeFromDashboard}
+          />
+        )}
+
+        {view === 'suddendeath' && (
+          <SuddenDeathView
+            questions={QUESTIONS}
+            bestRecord={state.suddenDeathRecord || { bestStreak: 0, date: '' }}
+            onRecordNewBest={handleRecordNewBest}
+            onQuestionOutcome={recordOutcome}
+            onReturnToDashboard={() => setView('dashboard')}
+            onOpenShareChallenge={handleOpenChallengeFromSuddenDeath}
           />
         )}
 
@@ -446,6 +519,7 @@ export default function App() {
             onReturnDashboard={() => setView('dashboard')}
             onStartErrors={handleStartErrors}
             onRestartQuiz={handleRestartQuiz}
+            onOpenShareChallenge={handleOpenChallengeFromResults}
           />
         )}
 
@@ -462,7 +536,7 @@ export default function App() {
             <span>Outil personnel d'entraînement et de révision (Initiative indépendante non officielle)</span>
           </div>
           <div className="font-semibold text-slate-600 dark:text-slate-300">
-            Préparation Épreuve Finale CEE1 • 465 Questions (dont 200 V/F Annales & Fichiers)
+            Préparation Épreuve Finale CEE1 • 465 Questions • Mode Mort Subite & Examen Blanc
           </div>
         </div>
       </footer>
@@ -472,6 +546,14 @@ export default function App() {
         isOpen={isRankModalOpen}
         onClose={() => setIsRankModalOpen(false)}
         masteryPct={masteryData.pct}
+      />
+
+      <ShareChallengeModal
+        isOpen={isChallengeModalOpen}
+        onClose={() => setIsChallengeModalOpen(false)}
+        currentRank={masteryData.currentRank}
+        challengeData={challengeData}
+        onShowToast={showToast}
       />
 
       <BackupModal
