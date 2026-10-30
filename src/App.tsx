@@ -7,6 +7,7 @@ import {
   shuffleQuestions,
   SuddenDeathRecord,
 } from './utils/quizLogic';
+import { soundEffects } from './utils/soundEffects';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
 import { QuizView, QuizSession } from './components/QuizView';
@@ -122,8 +123,16 @@ export default function App() {
     const interval = setInterval(() => {
       setQuiz((prev) => {
         if (!prev) return null;
+
+        // 2 minutes warning bell
+        if (prev.timerSeconds === 120) {
+          soundEffects.playChime();
+          showToast('⏳ ALERTE JURY : Il vous reste 2 minutes avant la fin de l’épreuve !', 'warning');
+        }
+
         if (prev.timerSeconds <= 1) {
           clearInterval(interval);
+          soundEffects.playChime();
           showToast('Temps écoulé ! Remise automatique de la copie.', 'warning');
           // finish quiz
           setTimeout(() => {
@@ -161,6 +170,10 @@ export default function App() {
           newErrorIds = [...newErrorIds, qId];
         }
       } else {
+        if (newErrorIds.includes(qId)) {
+          soundEffects.playErrorNeutralized();
+          showToast('🛡️ FAUTE NEUTRALISÉE & BLANCHIE DU CASIER !', 'success');
+        }
         newErrorIds = newErrorIds.filter((id) => id !== qId);
       }
 
@@ -402,9 +415,20 @@ export default function App() {
     setState((prev) => {
       const exists = prev.bookmarks.includes(qId);
       const newBookmarks = exists ? prev.bookmarks.filter((id) => id !== qId) : [...prev.bookmarks, qId];
-      showToast(exists ? 'Question retirée des favoris.' : 'Question épinglée !', exists ? 'info' : 'success');
+      if (!exists) {
+        soundEffects.playStar();
+        showToast('Question épinglée à vos fiches prioritaires ⭐', 'success');
+      } else {
+        showToast('Question retirée des favoris.', 'info');
+      }
       return { ...prev, bookmarks: newBookmarks };
     });
+  };
+
+  const handleJumpToQuestion = (idx: number) => {
+    if (!quiz || idx < 0 || idx >= quiz.questions.length) return;
+    setQuiz((prev) => prev && { ...prev, currentIndex: idx });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleToggleFlag = () => {
@@ -511,6 +535,7 @@ export default function App() {
             onPrevQuestion={handlePrevQuestion}
             onNextQuestion={handleNextQuestion}
             onFinishQuiz={handleFinishQuiz}
+            onJumpToQuestion={handleJumpToQuestion}
             onToggleBookmark={() => currentQId && handleToggleBookmark(currentQId)}
             onToggleFlag={handleToggleFlag}
             onReturnToDashboard={() => setView('dashboard')}

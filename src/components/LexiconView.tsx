@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { MODULES, Question, QUESTIONS } from '../data/examData';
 import { filterLexicon } from '../utils/quizLogic';
-import { Search, ArrowLeft, BookOpen, CheckCircle } from 'lucide-react';
+import { Search, ArrowLeft, BookOpen, CheckCircle, Sparkles } from 'lucide-react';
 
 interface LexiconViewProps {
   onReturnDashboard: () => void;
@@ -17,6 +17,24 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onReturnDashboard }) =
 
   const letters = ['A', 'B', 'C', 'D'];
 
+  // Neon highlighter for search keywords
+  const highlightMatch = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <mark
+          key={i}
+          className="bg-yellow-400/90 dark:bg-yellow-400/35 text-slate-950 dark:text-yellow-200 px-1 py-0.5 rounded-md font-black shadow-sm ring-1 ring-yellow-400/50"
+        >
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-5 animate-fadeIn">
       {/* Header */}
@@ -29,7 +47,7 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onReturnDashboard }) =
             </h1>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Recherchez instantanément par article (ex. L. 435-1, 78-3-1, 122-5, R. 434-16), sigle ou notion juridique.
+            Recherchez instantanément par article (ex. L. 435-1, 78-2, 122-5, R. 434-16), sigle ou notion juridique.
           </p>
         </div>
 
@@ -49,11 +67,19 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onReturnDashboard }) =
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Rechercher un article, un mot-clé, une infraction (ex: armes, vol, discernement)..."
+              placeholder="Rechercher un article, un mot-clé, une infraction (ex: armes, vol, discernement, 78-2)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-[#060B19] border border-slate-300 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
             />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                Effacer
+              </button>
+            )}
           </div>
           <span className="self-center text-xs font-mono font-bold text-blue-600 dark:text-blue-400 px-3 py-2 rounded-xl bg-blue-500/10 shrink-0">
             {filteredQuestions.length} question{filteredQuestions.length > 1 ? 's' : ''} trouvée{filteredQuestions.length > 1 ? 's' : ''}
@@ -118,22 +144,26 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onReturnDashboard }) =
                       </span>
                     )}
                   </div>
-                  <span className="text-xs font-mono text-slate-400">{q.ref}</span>
+                  <span className="text-xs font-mono text-slate-400">
+                    {highlightMatch(q.ref, search)}
+                  </span>
                 </div>
 
                 <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
-                  {q.q}
+                  {highlightMatch(q.q, search)}
                 </h3>
 
                 <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
                   <div>
-                    <strong>Réponse exacte ({letters[q.correct]}) :</strong> {q.options[q.correct]}
+                    <strong>Réponse exacte ({letters[q.correct]}) :</strong>{' '}
+                    <span>{highlightMatch(q.options[q.correct], search)}</span>
                   </div>
                 </div>
 
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pt-1">
-                  <strong className="text-slate-800 dark:text-slate-200">Point de droit & Piège :</strong> {q.exp}
+                  <strong className="text-slate-800 dark:text-slate-200">Point de droit & Piège :</strong>{' '}
+                  {highlightMatch(q.exp, search)}
                 </p>
               </div>
             );

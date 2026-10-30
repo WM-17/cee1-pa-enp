@@ -168,7 +168,7 @@ class SoundManager {
     } catch {}
   }
 
-  // Subtle clock tick warning for the 15-second timer
+  // Subtle clock tick warning for the 15-second / 30-second timer
   public playTick() {
     if (!this.soundEnabled) return;
     this.initCtx();
@@ -190,6 +190,130 @@ class SoundManager {
 
       osc.start(now);
       osc.stop(now + 0.05);
+    } catch {}
+  }
+
+  // Official amphitheater exam bell / chime (2-min warning or exam end)
+  public playChime() {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      [880, 1174.66].forEach((freq, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + idx * 0.18;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.001, start);
+        gain.gain.linearRampToValueAtTime(0.18, start + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.65);
+      });
+    } catch {}
+  }
+
+  // Shield / padlock unlock sound when an error is permanently eradicated
+  public playErrorNeutralized() {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      // Rising crisp harmonic
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(587.33, now); // D5
+      osc1.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(880, now);
+      osc2.frequency.exponentialRampToValueAtTime(1174.66, now + 0.18); // D6
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.42);
+      osc2.stop(now + 0.42);
+    } catch {}
+  }
+
+  // Bright twinkle note when bookmarking / starring a question
+  public playStar() {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1318.51, now); // E6
+      osc.frequency.exponentialRampToValueAtTime(1760, now + 0.12); // A6
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.28);
+    } catch {}
+  }
+
+  // Grand jury chord
+  public playJuryVerdict(isSuccess: boolean) {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const freqs = isSuccess ? [523.25, 659.25, 783.99, 1046.5] : [349.23, 311.13, 261.63];
+      freqs.forEach((freq, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + idx * 0.12;
+
+        osc.type = isSuccess ? 'triangle' : 'sawtooth';
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.001, start);
+        gain.gain.linearRampToValueAtTime(isSuccess ? 0.22 : 0.18, start + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.55);
+      });
     } catch {}
   }
 }
