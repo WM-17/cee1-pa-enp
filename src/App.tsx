@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { MODULES, QUESTIONS, Question } from './data/examData';
+import { MODULES, QUESTIONS, Question, RANKS } from './data/examData';
 import {
   AppState,
   INITIAL_STATE,
@@ -138,10 +138,15 @@ export default function App() {
     return () => clearInterval(interval);
   }, [view, quiz?.mode]);
 
-  // Calculate overall mastery
+  // Calculate overall mastery (support both completion % and sudden death streak)
   const masteryData = useMemo(() => {
-    return calculateMastery(state.stats, QUESTIONS.length);
-  }, [state.stats]);
+    return calculateMastery(
+      state.stats,
+      QUESTIONS.length,
+      RANKS,
+      state.suddenDeathRecord?.bestStreak || 0
+    );
+  }, [state.stats, state.suddenDeathRecord?.bestStreak]);
 
   // Record an outcome for a question
   const recordOutcome = useCallback((qId: number, isCorrect: boolean, chosenIdx: number) => {
@@ -546,6 +551,7 @@ export default function App() {
         isOpen={isRankModalOpen}
         onClose={() => setIsRankModalOpen(false)}
         masteryPct={masteryData.pct}
+        bestStreak={state.suddenDeathRecord?.bestStreak || 0}
       />
 
       <ShareChallengeModal

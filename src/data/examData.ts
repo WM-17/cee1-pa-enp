@@ -12,6 +12,7 @@ export interface ExamModule {
 
 export interface Rank {
   minPct: number;
+  minStreak: number;
   title: string;
   appellation: string;
   corps: string;
@@ -104,6 +105,7 @@ export const MODULES: ExamModule[] = [
 export const RANKS: Rank[] = [
   {
     "minPct": 0,
+    "minStreak": 0,
     "title": "Élève Gardien de la Paix",
     "appellation": "« Gardien »",
     "corps": "CEA",
@@ -111,6 +113,7 @@ export const RANKS: Rank[] = [
   },
   {
     "minPct": 12,
+    "minStreak": 5,
     "title": "Gardien de la Paix",
     "appellation": "« Gardien » (2 chevrons blancs)",
     "corps": "CEA",
@@ -118,6 +121,7 @@ export const RANKS: Rank[] = [
   },
   {
     "minPct": 25,
+    "minStreak": 10,
     "title": "Gardien de la Paix (6e échelon)",
     "appellation": "« Sous-Brigadier » (3 chevrons)",
     "corps": "CEA",
@@ -125,6 +129,7 @@ export const RANKS: Rank[] = [
   },
   {
     "minPct": 40,
+    "minStreak": 15,
     "title": "Brigadier-Chef de Police",
     "appellation": "« Brigadier-Chef »",
     "corps": "CEA",
@@ -132,6 +137,7 @@ export const RANKS: Rank[] = [
   },
   {
     "minPct": 55,
+    "minStreak": 20,
     "title": "Major de Police RULP",
     "appellation": "« Major » (Losange contour blanc)",
     "corps": "CEA",
@@ -139,6 +145,7 @@ export const RANKS: Rank[] = [
   },
   {
     "minPct": 70,
+    "minStreak": 30,
     "title": "Capitaine de Police",
     "appellation": "« Capitaine » (3 galons blancs)",
     "corps": "Commandement",
@@ -146,6 +153,7 @@ export const RANKS: Rank[] = [
   },
   {
     "minPct": 85,
+    "minStreak": 40,
     "title": "Commissaire de Police",
     "appellation": "« M. le Commissaire » (5 feuilles, 1 gland)",
     "corps": "Conception & Direction",
@@ -153,10 +161,19 @@ export const RANKS: Rank[] = [
   },
   {
     "minPct": 95,
+    "minStreak": 50,
     "title": "Commissaire Général — Major CEE1",
     "appellation": "« M. le Commissaire général » (2 diamants or)",
     "corps": "Conception & Direction",
     "svgType": "commissaire_gen"
+  },
+  {
+    "minPct": 100,
+    "minStreak": 60,
+    "title": "Chef Délégué Suprême",
+    "appellation": "« Chef Délégué Suprême » (Palmes Impériales & 5 Étoiles Diamant Or)",
+    "corps": "Haut Commandement Suprême • Légende Absolue CEE1",
+    "svgType": "chef_supreme"
   }
 ];
 

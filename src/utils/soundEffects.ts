@@ -110,6 +110,33 @@ class SoundManager {
     } catch {}
   }
 
+  // Heavy stamp impact sound (when INTERPELLÉ rubber stamp slams onto screen)
+  public playStamp() {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      // Low punchy bass drop with distortion impact
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(35, now + 0.3);
+
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.38);
+    } catch {}
+  }
+
   // Triumphant fanfare when breaking high record or crossing 20+ streak
   public playNewRecord() {
     if (!this.soundEnabled) return;

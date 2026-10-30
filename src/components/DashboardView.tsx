@@ -24,6 +24,8 @@ interface DashboardViewProps {
     masteredCount: number;
     pct: number;
     currentRank: Rank;
+    nextRank?: Rank | null;
+    unlockedBy?: 'pct' | 'streak' | 'both';
   };
   onStartExam: (count?: number) => void;
   onStartModule: (moduleId: string, filter?: 'all' | 'unmastered') => void;
@@ -47,7 +49,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenRankModal,
   onOpenShareChallenge,
 }) => {
-  const { totalQuestions, masteredCount, pct, currentRank } = masteryData;
+  const { totalQuestions, masteredCount, pct, currentRank, nextRank, unlockedBy } = masteryData;
   const errorCount = state.errorIds.length;
   const bookmarkCount = state.bookmarks.length;
   const lastExam = state.examHistory[0];
@@ -92,8 +94,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </button>
               </div>
             </div>
-            <div className="text-base sm:text-lg font-black truncate mt-0.5 text-white">
-              {currentRank.title}
+            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+              <span className="text-base sm:text-lg font-black truncate text-white">
+                {currentRank.title}
+              </span>
+              {masteryData.unlockedBy === 'streak' && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1">
+                  🔥 Débloqué par Série ({state.suddenDeathRecord?.bestStreak || 0})
+                </span>
+              )}
             </div>
             <div className="w-full h-2 rounded-full bg-slate-950/80 overflow-hidden mt-2.5">
               <div
@@ -101,11 +110,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <div className="flex justify-between text-xs text-slate-300 mt-1.5 font-medium">
+            <div className="flex justify-between items-center text-xs text-slate-300 mt-1.5 font-medium flex-wrap gap-1">
               <span>
                 {masteredCount} / {totalQuestions} questions acquises
               </span>
-              <span className="font-mono font-bold text-emerald-400">{pct}%</span>
+              <div className="flex items-center gap-2">
+                {nextRank && (
+                  <span className="text-[11px] text-slate-400 hidden sm:inline">
+                    Objectif suivant : <strong className="text-amber-300">{nextRank.title}</strong> ({nextRank.minPct}% ou Série {nextRank.minStreak})
+                  </span>
+                )}
+                <span className="font-mono font-bold text-emerald-400">{pct}%</span>
+              </div>
             </div>
           </div>
         </div>

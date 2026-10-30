@@ -42,8 +42,8 @@
 
 @keyframes policeFlash {
   0%, 100% { opacity: 0; }
-  25% { opacity: 0.35; background-color: rgba(239, 68, 68, 0.4); }
-  75% { opacity: 0.35; background-color: rgba(59, 130, 246, 0.4); }
+  25% { opacity: 0.4; background-color: rgba(239, 68, 68, 0.45); }
+  75% { opacity: 0.4; background-color: rgba(59, 130, 246, 0.45); }
 }
 
 @keyframes flamePulse {
@@ -55,6 +55,87 @@
   0% { transform: scale(0.6); opacity: 0; }
   60% { transform: scale(1.25); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes stampSlam {
+  0% {
+    transform: scale(3.5) rotate(-20deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.92) rotate(-10deg);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.04) rotate(-13deg);
+  }
+  100% {
+    transform: scale(1) rotate(-12deg);
+    opacity: 1;
+  }
+}
+
+@keyframes comboFloatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.85);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.1);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-28px) scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-44px) scale(0.95);
+  }
+}
+
+@keyframes heartbeatPulse {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.03); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.045); }
+  60% { transform: scale(1); }
+}
+
+@keyframes vignettePulseElectric {
+  0%, 100% {
+    box-shadow: inset 0 0 45px rgba(59, 130, 246, 0.35);
+  }
+  50% {
+    box-shadow: inset 0 0 85px rgba(59, 130, 246, 0.65);
+  }
+}
+
+@keyframes vignettePulseGold {
+  0%, 100% {
+    box-shadow: inset 0 0 55px rgba(245, 158, 11, 0.45);
+  }
+  50% {
+    box-shadow: inset 0 0 95px rgba(245, 158, 11, 0.75);
+  }
+}
+
+@keyframes vignettePulseLegend {
+  0%, 100% {
+    box-shadow: inset 0 0 70px rgba(168, 85, 247, 0.55), inset 0 0 35px rgba(234, 179, 8, 0.4);
+  }
+  50% {
+    box-shadow: inset 0 0 115px rgba(168, 85, 247, 0.8), inset 0 0 55px rgba(234, 179, 8, 0.65);
+  }
+}
+
+@keyframes fireGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(249, 115, 22, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(239, 68, 68, 0.85), 0 0 60px rgba(249, 115, 22, 0.6);
+  }
 }
 
 .animate-shake {
@@ -71,5 +152,33 @@
 
 .animate-pop {
   animation: popCombo 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-stamp {
+  animation: stampSlam 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-combo-float {
+  animation: comboFloatUp 1.1s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.animate-heartbeat {
+  animation: heartbeatPulse 1s infinite ease-in-out;
+}
+
+.vignette-electric {
+  animation: vignettePulseElectric 1.8s infinite ease-in-out;
+}
+
+.vignette-gold {
+  animation: vignettePulseGold 1.5s infinite ease-in-out;
+}
+
+.vignette-legend {
+  animation: vignettePulseLegend 1.2s infinite ease-in-out;
+}
+
+.animate-fire-glow {
+  animation: fireGlow 1.4s infinite ease-in-out;
 }
 

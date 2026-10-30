@@ -43,7 +43,8 @@ export const INITIAL_STATE: AppState = {
 export function calculateMastery(
   stats: Record<number, UserStats>,
   totalQuestions: number,
-  ranks: Rank[] = RANKS
+  ranks: Rank[] = RANKS,
+  bestStreak: number = 0
 ) {
   let masteredCount = 0;
   let seenCount = 0;
@@ -58,11 +59,19 @@ export function calculateMastery(
   const pct = totalQuestions > 0 ? Math.round((masteredCount / totalQuestions) * 100) : 0;
   let currentRank = ranks[0];
   let nextRank: Rank | null = null;
+  let unlockedBy: 'pct' | 'streak' | 'both' = 'both';
 
   for (let i = 0; i < ranks.length; i++) {
-    if (pct >= ranks[i].minPct) {
-      currentRank = ranks[i];
+    const r = ranks[i];
+    const unlockedByPct = pct >= r.minPct;
+    const unlockedByStreak = r.minStreak > 0 && bestStreak >= r.minStreak;
+
+    if (unlockedByPct || unlockedByStreak) {
+      currentRank = r;
       nextRank = ranks[i + 1] || null;
+      if (unlockedByPct && unlockedByStreak) unlockedBy = 'both';
+      else if (unlockedByStreak) unlockedBy = 'streak';
+      else unlockedBy = 'pct';
     }
   }
 
@@ -71,8 +80,10 @@ export function calculateMastery(
     masteredCount,
     seenCount,
     pct,
+    bestStreak,
     currentRank,
     nextRank,
+    unlockedBy,
   };
 }
 
